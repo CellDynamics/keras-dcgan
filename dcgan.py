@@ -21,7 +21,7 @@ def generator_model():
     model.add(Dense(128*7*7))
     model.add(BatchNormalization())
     model.add(Activation('tanh'))
-    model.add(Reshape((128, 7, 7), input_shape=(128*7*7,)))
+    model.add(Reshape((7, 7, 128), input_shape=(128*7*7,)))
     model.add(UpSampling2D(size=(2, 2)))
     model.add(Convolution2D(64, 5, 5, border_mode='same'))
     model.add(Activation('tanh'))
@@ -36,7 +36,7 @@ def discriminator_model():
     model.add(Convolution2D(
                         64, 5, 5,
                         border_mode='same',
-                        input_shape=(1, 28, 28)))
+                        input_shape=(28, 28, 1)))
     model.add(Activation('tanh'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Convolution2D(128, 5, 5))
@@ -96,12 +96,14 @@ def train(BATCH_SIZE):
             for i in range(BATCH_SIZE):
                 noise[i, :] = np.random.uniform(-1, 1, 100)
             image_batch = X_train[index*BATCH_SIZE:(index+1)*BATCH_SIZE]
+            image_batch = image_batch.transpose((0,2,3,1))
             generated_images = generator.predict(noise, verbose=0)
             if index % 20 == 0:
                 image = combine_images(generated_images)
                 image = image*127.5+127.5
                 Image.fromarray(image.astype(np.uint8)).save(
                     str(epoch)+"_"+str(index)+".png")
+            print(image_batch.shape, generated_images.shape)
             X = np.concatenate((image_batch, generated_images))
             y = [1] * BATCH_SIZE + [0] * BATCH_SIZE
             d_loss = discriminator.train_on_batch(X, y)
