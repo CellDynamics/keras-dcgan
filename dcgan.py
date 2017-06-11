@@ -99,7 +99,8 @@ def train(BATCH_SIZE):
             image_batch = image_batch.transpose((0,2,3,1))
             generated_images = generator.predict(noise, verbose=0)
             if index % 20 == 0:
-                image = combine_images(generated_images)
+                generated_images_tosave = image_batch.transpose((0,3,1,2))
+                image = combine_images(generated_images_tosave)
                 image = image*127.5+127.5
                 Image.fromarray(image.astype(np.uint8)).save(
                     str(epoch)+"_"+str(index)+".png")
