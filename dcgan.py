@@ -99,7 +99,7 @@ def train(BATCH_SIZE):
             image_batch = image_batch.transpose((0,2,3,1))
             generated_images = generator.predict(noise, verbose=0)
             if index % 20 == 0:
-                generated_images_tosave = image_batch.transpose((0,3,1,2))
+                generated_images_tosave = generated_images.transpose((0,3,1,2))
                 image = combine_images(generated_images_tosave)
                 image = image*127.5+127.5
                 Image.fromarray(image.astype(np.uint8)).save(
@@ -149,7 +149,8 @@ def generate(BATCH_SIZE, nice=False):
         for i in range(BATCH_SIZE):
             noise[i, :] = np.random.uniform(-1, 1, 100)
         generated_images = generator.predict(noise, verbose=1)
-        image = combine_images(generated_images)
+        generated_images_tosave = generated_images.transpose((0,3,1,2))
+        image = combine_images(generated_images_tosave)
     image = image*127.5+127.5
     Image.fromarray(image.astype(np.uint8)).save(
         "generated_image.png")
